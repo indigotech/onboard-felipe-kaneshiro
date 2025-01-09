@@ -1,20 +1,21 @@
 {
+  "main": "lib/index.js",
   "scripts": {
-    "start": "node express-server.js"
+    "build": "tsc",
+    "dev": "nodemon",
+    "start": "ts-node index.ts"
   },
   "dependencies": {
-    "express": "^4.21.2",
-    "express-graphql": "^0.12.0",
-    "graphql": "^16.10.0",
-    "graphql-http": "^1.22.3",
-    "graphql-upload": "^17.0.0"
+    "apollo-server": "3.13.0",
+    "express": "4.21.2",
+    "express-graphql": "0.12.0",
+    "graphql": "16.10.0",
+    "graphql-http": "1.22.3",
+    "graphql-upload": "17.0.0"
   },
-  "exports": {
-    "./GraphQLUpload.mjs": "./GraphQLUpload.mjs",
-    "./graphqlUploadExpress.mjs": "./graphqlUploadExpress.mjs",
-    "./graphqlUploadKoa.mjs": "./graphqlUploadKoa.mjs",
-    "./package.json": "./package.json",
-    "./processRequest.mjs": "./processRequest.mjs",
-    "./Upload.mjs": "./Upload.mjs"
+  "devDependencies": {
+    "nodemon": "3.1.9",
+    "ts-node": "10.9.2",
+    "typescript": "5.7.2"
   }
 }
