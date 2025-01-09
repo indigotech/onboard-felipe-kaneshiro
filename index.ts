@@ -1,4 +1,4 @@
-import { ApolloServer } from "apollo-server"
+import { ApolloServer } from 'apollo-server';
 
 // Pegar uma porta personaliada do ENV
 const PORT = process.env.PORT || 4000;
@@ -18,20 +18,18 @@ type Query {
 `;
 
 const resolvers = {
-    Query: {
-        users: () => [],
-        hello: () => `Hello, world`,
-    },
+  Query: {
+    users: () => [],
+    hello: () => `Hello, world`,
+  },
 };
-
 
 // Instancia do ApolloServer
 const server = new ApolloServer({
-    typeDefs,
-    resolvers,
+  typeDefs,
+  resolvers,
 });
 
-
 server.listen(PORT).then(({ url }) => {
-    console.log (`Server ready at ${url}`);
+  console.log(`Server ready at ${url}`);
 });
