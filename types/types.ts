@@ -28,7 +28,7 @@ export interface User {
   id: number;
   name: string;
   email: string;
-  birthDate: string;
+  birthDate: Date;
 };
 
 export interface UserInput  {
