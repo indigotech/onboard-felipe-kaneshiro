@@ -1,35 +1,18 @@
+// index.ts
 import { ApolloServer } from 'apollo-server';
+import { resolvers } from './resolvers/user-resolver';
+import { typeDefs } from './types/types';
 
-// Pegar uma porta personaliada do ENV
-const PORT = process.env.PORT || 4000;
+async function startServer() {
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+  });
 
-// Definindo o Schema do GraphQL
-const typeDefs = `
-type User {
-    firstname: String
-    lastname: String
-    age: Int
-    address: String
-}
-type Query {
-    users: [User]
-    hello: String
-}
-`;
-
-const resolvers = {
-  Query: {
-    users: () => [],
-    hello: () => `Hello, world`,
-  },
-};
-
-// Instancia do ApolloServer
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-});
-
-server.listen(PORT).then(({ url }) => {
+  const { url } = await server.listen({ port: 4000 });
   console.log(`Server ready at ${url}`);
+}
+
+startServer().catch((error) => {
+  console.error('Error starting server:', error);
 });
