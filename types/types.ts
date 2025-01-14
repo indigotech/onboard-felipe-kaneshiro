@@ -2,7 +2,7 @@ import { gql } from 'apollo-server';
 
 export const typeDefs = gql`
   type Query {
-    showUsersList: [User!]!
+    users: [User!]!
   }
 
   type Mutation {
@@ -24,15 +24,16 @@ export const typeDefs = gql`
   }
 `;
 
-export type User = {
+export interface User {
   id: number;
   name: string;
   email: string;
   birthDate: string;
 };
 
-export type UserInput = {
+export interface UserInput  {
   name: string;
   email: string;
+  password: string;
   birthDate: string;
 };
