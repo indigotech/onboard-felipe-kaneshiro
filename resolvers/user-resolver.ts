@@ -1,38 +1,29 @@
 import { UserInput, User } from '../types/types';
-import { PrismaClient } from '@prisma/client';
-
-const usersList: User[] = [];
+import prisma from '../prisma';
 
 export const resolvers = {
   Query: {
     users: (): User[] => {
-      if (usersList.length === 0) {
-        console.log('No users found.');
-      }
-
-      return usersList;
+      return [];
     },
   },
 
   Mutation: {
-    createUser: async (_: unknown, args: { userData: UserInput }, context: { prisma: PrismaClient }): Promise<User> => {
-      const existingUser = await context.prisma.user.findUnique({
+    createUser: async (_: unknown, args: { userData: UserInput }): Promise<User> => {
+      const existingUser = await prisma.user.findUnique({
         where: { email: args.userData.email },
       });
+
       if (existingUser) {
         throw new Error(`E-mail ${args.userData.email} is already in use.`);
       }
 
-      const newUser = await context.prisma.user.create({
+      const newUser = await prisma.user.create({
         data: {
-          name: args.userData.name,
-          email: args.userData.email,
-          password: args.userData.password,
+          ...args.userData,
           birthDate: new Date(args.userData.birthDate),
         },
       });
-
-      usersList.push(newUser);
 
       return newUser;
     },
