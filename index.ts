@@ -1,13 +1,5 @@
-// index.ts
-import { ApolloServer } from 'apollo-server';
-import { resolvers } from './resolvers/user-resolver';
-import { typeDefs } from './types/types';
+import {  server } from './server';
 import prisma from './prisma';
-
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-});
 
 (async () => {
   try {
