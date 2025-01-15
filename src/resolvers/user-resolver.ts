@@ -1,6 +1,7 @@
 import { UserInput, User } from '../types/types';
 import { validateUserInput } from '../validation';
 import prisma from '../prisma';
+import bcrypt from 'bcrypt';
 
 const checkEmailExistence = async (email: string): Promise<void> => {
   const existingUser = await prisma.user.findUnique({
@@ -12,9 +13,12 @@ const checkEmailExistence = async (email: string): Promise<void> => {
 };
 
 const createNewUser = async (userData: UserInput): Promise<User> => {
+  const hashedPassword = await bcrypt.hash(userData.password, 10);
+
   return prisma.user.create({
     data: {
       ...userData,
+      password: hashedPassword,
       birthDate: new Date(userData.birthDate),
     },
   });
