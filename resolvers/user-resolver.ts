@@ -1,22 +1,29 @@
 import { UserInput, User } from '../types/types';
-
-let currentId = 1;
+import prisma from '../prisma';
 
 export const resolvers = {
   Query: {
     users: (): User[] => {
-        return [];
+      return [];
     },
   },
 
   Mutation: {
-    createUser: (_: unknown, args: { userData: UserInput }) => {
-      const newUser: User = {
-          id: currentId++,
-          name: args.userData.name,
-          email: args.userData.email,
-          birthDate: args.userData.birthDate,
-      };
+    createUser: async (_: unknown, args: { userData: UserInput }): Promise<User> => {
+      const existingUser = await prisma.user.findUnique({
+        where: { email: args.userData.email },
+      });
+
+      if (existingUser) {
+        throw new Error(`E-mail ${args.userData.email} is already in use.`);
+      }
+
+      const newUser = await prisma.user.create({
+        data: {
+          ...args.userData,
+          birthDate: new Date(args.userData.birthDate),
+        },
+      });
 
       return newUser;
     },

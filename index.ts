@@ -1,18 +1,15 @@
-// index.ts
-import { ApolloServer } from 'apollo-server';
-import { resolvers } from './resolvers/user-resolver';
-import { typeDefs } from './types/types';
+import {  server } from './server';
+import prisma from './prisma';
 
-async function startServer() {
-  const server = new ApolloServer({
-    typeDefs,
-    resolvers,
-  });
+(async () => {
+  try {
+    await prisma.$connect();
+    console.log('Database connected successfully.');
 
-  const { url } = await server.listen({ port: 4000 });
-  console.log(`Server ready at ${url}`);
-}
-
-startServer().catch((error) => {
-  console.error('Error starting server:', error);
-});
+    const { url } = await server.listen();
+    console.log(`Server ready at ${url}`);
+  } catch (error) {
+    console.error('Failed to connect to the database:', error);
+    process.exit(1);
+  }
+})();
