@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { expect } from 'chai';
 
 describe('Hello Query', () => {
   it('should return Hello, Wordl!', async () => {
@@ -10,8 +11,8 @@ describe('Hello Query', () => {
           }
         `,
     };
-    const response = await axios.post('http://localhost:4000', hello);
 
-    console.log(response.data);
-  });
+    const response = await axios.post('http://localhost:4000', hello);
+    console.log('Response:', response.data);
+    expect(response.data.data.hello).to.be.eq('Hello, World!');});
 });
