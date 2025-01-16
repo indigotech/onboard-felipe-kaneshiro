@@ -11,7 +11,7 @@ const checkEmailExistence = async (email: string): Promise<void> => {
   if (existingUser) {
     throw new CustomError(
       "Email inserido já está em uso.",
-      400,
+      409,
       "Ecscolha um email diferente."
       );
   }
@@ -43,13 +43,13 @@ export const resolvers = {
     createUser: async (_: unknown, args: { userData: UserInput }): Promise<User> => {
       const { userData } = args;
 
-        await checkEmailExistence(userData.email);
+      validateUserInput(userData);
+      
+      await checkEmailExistence(userData.email);
 
-        validateUserInput(userData);
+      const newUser = await createNewUser(userData);
 
-        const newUser = await createNewUser(userData);
-
-        return newUser;
+      return newUser;
     },
   },
 };

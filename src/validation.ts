@@ -20,12 +20,4 @@ export const validateUserInput = (userData: { name: string; email: string; passw
       "A senha deve conter pelo menos 6 caracteres."
     );
   }
-
-  if (/\s/.test(password)) {
-    throw new CustomError(
-      "Senha inválida",
-      400,
-      "A senha não deve conter espaços."
-    );
-  }
 };
