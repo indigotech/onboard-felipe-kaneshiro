@@ -11,3 +11,4 @@ after(async () => {
 });
 
 import './query-test';
+import './prisma-test';
