@@ -1,4 +1,5 @@
 import { GraphQLError } from "graphql";
+import { unwrapResolverError } from '@apollo/server/errors';
 
 export class CustomError extends Error {
   code: number;
@@ -8,22 +9,22 @@ export class CustomError extends Error {
     super(message);
     this.code = code;
     this.details = details;
+
+    Object.setPrototypeOf(this, CustomError.prototype);
   }
 }
 
 export function formatError(error: GraphQLError) {
-  const exception = error.extensions?.exception;
+  const myCustomError = unwrapResolverError(error);
 
-  if (exception && exception.code && 'details' in exception) {
-    console.log('Custom error returned', exception);
+  if (myCustomError instanceof CustomError) {
     return {
-      message: error.message,
-      code: exception.code,
-      details: exception.details,
+      message: myCustomError.message,
+      code: myCustomError.code,
+      details: myCustomError.details,
     };
   }
 
-  console.log('Default error returned', error.message);
   return {
     message: "Ocorreu um erro. Por favor, tente novamente.",
     code: 500,
