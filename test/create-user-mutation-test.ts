@@ -2,6 +2,7 @@ import axios from "axios";
 import { compare } from "bcrypt";
 import { expect } from "chai";
 import { UserInput } from "../src/types/types";
+import prisma from "../src/prisma";
 
 describe('Create User Mutation', () => {
     it('should create a user successfully', async () => {
@@ -35,12 +36,22 @@ describe('Create User Mutation', () => {
 
         console.log('Server response received:', response.data);
         
-        expect(response.data.data.createUser.name).to.be.eq(newUser.name);
-        expect(response.data.data.createUser.email).to.be.eq(newUser.email);
+        expect(response.data.data.createUser.name).to.be.deep.eq(newUser.name);
+        expect(response.data.data.createUser.email).to.be.deep.eq(newUser.email);
 
         const expectedBirthDateInMs = new Date(newUser.birthDate).getTime();
-        expect(Number(response.data.data.createUser.birthDate)).to.be.eq(expectedBirthDateInMs);
+        expect(Number(response.data.data.createUser.birthDate)).to.be.deep.eq(expectedBirthDateInMs);
 
-        expect(await compare(newUser.password, response.data.data.createUser.password)).to.be.eq(true);
+        expect(await compare(newUser.password, response.data.data.createUser.password)).to.be.deep.eq(true);
+
+        
+        const savedUser = await prisma.user.findUnique({
+            where: { email: newUser.email },
+        });
+
+        if (savedUser) {
+            console.log('User created in the database:', savedUser);
+            await prisma.user.delete({ where: { id: savedUser.id } });
+        }
     });
 });
