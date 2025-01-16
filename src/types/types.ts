@@ -19,7 +19,6 @@ export const typeDefs = gql`
     name: String!
     email: String!
     birthDate: String!
-    password: String!
   }
 `;
 
