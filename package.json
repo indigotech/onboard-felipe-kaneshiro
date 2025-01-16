@@ -4,6 +4,7 @@
     "build": "tsc",
     "dev": "nodemon",
     "start": "ts-node ./src/index.ts",
+    "test": "mocha --require ts-node/register test/index.ts",
     "lint": "eslint",
     "format": "prettier --write .",
     "check-format": "prettier --check ."
@@ -11,7 +12,9 @@
   "dependencies": {
     "@prisma/client": "6.2.1",
     "apollo-server": "3.13.0",
+    "axios": "1.7.9",
     "bcrypt": "5.1.1",
+    "dotenv": "16.4.7",
     "express": "4.21.2",
     "graphql": "16.10.0",
     "graphql-http": "1.22.3",
@@ -20,8 +23,12 @@
   "devDependencies": {
     "@eslint/js": "9.17.0",
     "@types/bcrypt": "5.0.2",
+    "@types/chai": "5.0.1",
+    "@types/mocha": "10.0.10",
+    "chai": "5.1.2",
     "eslint": "9.17.0",
     "globals": "15.14.0",
+    "mocha": "11.0.1",
     "nodemon": "3.1.9",
     "prettier": "3.4.2",
     "ts-node": "10.9.2",
