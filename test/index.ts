@@ -2,6 +2,7 @@ import prisma from '../src/prisma';
 import { server } from '../src/server';
 
 before(async () => {
+  await prisma.$connect();
   await server.listen();
 });
 
@@ -11,4 +12,3 @@ after(async () => {
 });
 
 import './query-test';
-import './prisma-test';
