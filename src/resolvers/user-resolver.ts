@@ -1,7 +1,7 @@
-import { UserInput, User } from '../types/types';
+import { UserInput, User, LoginInput } from '../types/types';
 import { validateUserInput } from '../validation';
-import prisma from '../prisma';
 import { CustomError } from '../errors/format-error';
+import prisma from '../prisma';
 import bcrypt from 'bcrypt';
 
 const checkEmailExistence = async (email: string): Promise<void> => {
@@ -9,11 +9,7 @@ const checkEmailExistence = async (email: string): Promise<void> => {
     where: { email },
   });
   if (existingUser) {
-    throw new CustomError(
-      "Email inserido já está em uso.",
-      409,
-      "Escolha um email diferente."
-      );
+    throw new CustomError('Email inserido já está em uso.', 409, 'Ecscolha um email diferente.');
   }
 };
 
@@ -44,12 +40,34 @@ export const resolvers = {
       const { userData } = args;
 
       validateUserInput(userData);
-      
+
       await checkEmailExistence(userData.email);
 
       const newUser = await createNewUser(userData);
 
       return newUser;
+    },
+
+    login: async (_: unknown, args: { loginData: LoginInput }): Promise<{ user: User; token: string }> => {
+      const { loginData } = args;
+
+      const user = await prisma.user.findUnique({
+        where: { email: loginData.email },
+      });
+
+      if (!user) {
+        throw new CustomError('Usuário não encontrado', 404, 'Verifique o email e tente novamente.');
+      }
+
+      const isPasswordCorrect = await bcrypt.compare(loginData.password, user.password);
+
+      if (!isPasswordCorrect) {
+        throw new CustomError('Senha incorreta', 401, 'Verifique a senha e tente novamente.');
+      }
+
+      console.log('Login successful');
+
+      return { user, token: 'arroz' };
     },
   },
 };
