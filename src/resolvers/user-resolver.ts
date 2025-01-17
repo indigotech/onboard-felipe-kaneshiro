@@ -37,8 +37,12 @@ export const resolvers = {
   },
 
   Mutation: {
-    createUser: async (_: unknown, args: { userData: UserInput }): Promise<User> => {
+    createUser: async (_: unknown, args: { userData: UserInput }, context: { user: string | null }): Promise<User> => {
       const { userData } = args;
+
+      if (!context.user) {
+        throw new CustomError('Usuário não autenticado ou tempo de login expirado.', 401, 'Faça login para continuar.');
+      }
 
       validateUserInput(userData);
 
