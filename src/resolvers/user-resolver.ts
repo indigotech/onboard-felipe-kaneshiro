@@ -66,7 +66,9 @@ export const resolvers = {
         throw new CustomError('Senha incorreta', 401, 'Verifique a senha e tente novamente.');
       }
 
-      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET as string ,{ expiresIn: '1h' });
+      const expiresIn = loginData.rememberMe ? '7d' : '1h';
+
+      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET as string ,{ expiresIn }); 
 
       return { user, token };
     },
