@@ -3,6 +3,7 @@ import { validateUserInput } from '../validation';
 import { CustomError } from '../errors/format-error';
 import prisma from '../prisma';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 const checkEmailExistence = async (email: string): Promise<void> => {
   const existingUser = await prisma.user.findUnique({
@@ -65,7 +66,9 @@ export const resolvers = {
         throw new CustomError('Senha incorreta', 401, 'Verifique a senha e tente novamente.');
       }
 
-      return { user, token: 'arroz' };
+      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET as string ,{ expiresIn: '1h' });
+
+      return { user, token };
     },
   },
 };
