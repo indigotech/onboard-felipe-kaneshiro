@@ -13,3 +13,4 @@ after(async () => {
 });
 
 import './create-user-mutation-test';
+import './login-mutation-test';
