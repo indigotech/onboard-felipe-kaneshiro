@@ -4,7 +4,8 @@
     "build": "tsc",
     "dev": "nodemon",
     "start": "ts-node ./src/index.ts",
-    "test": "mocha --require ts-node/register test/index.ts",
+    "test": "dotenv -e test.env -- mocha test/index.ts",
+    "seeds": "ts-node src/seed/seed.ts",
     "lint": "eslint",
     "format": "prettier --write .",
     "check-format": "prettier --check ."
@@ -25,6 +26,7 @@
   },
   "devDependencies": {
     "@eslint/js": "9.17.0",
+    "@faker-js/faker": "9.4.0",
     "@types/bcrypt": "5.0.2",
     "@types/chai": "5.0.1",
     "@types/jsonwebtoken": "9.0.7",
