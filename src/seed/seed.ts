@@ -6,6 +6,15 @@ async function seed() {
     try {
         await prisma.user.deleteMany();
 
+        await prisma.user.create({
+            data: {
+                name: 'Admin',
+                email: 'admin@admin.com',
+                password: await bcrypt.hash('admin123', 10),
+                birthDate: new Date('2001-01-01'),
+            }
+        });
+
         for (let i = 0; i < 50; i++) {
             const randomName = faker.internet.username();
             const randomEmail = faker.internet.email();
