@@ -43,7 +43,31 @@ export const resolvers = {
       }
 
       return user;
-    }
+    },
+
+    Users: async (_: unknown, args: { amount: number | null }, context: { user: string | null }): Promise<User[]> => {
+      const { amount } = args;
+
+      if (!context.user) {
+        throw new CustomError('Usuário não autenticado ou tempo de login expirado.', 401, 'Faça login para continuar.');
+      }
+
+      if (typeof(amount) !== 'number'){
+        throw new CustomError('Entrada inválida', 400, 'A quantidade de usuários deve ser um número.');
+      }
+
+      if (amount === null || amount === undefined || amount <= 0) {
+        throw new CustomError('Quantidade inválida', 400, 'A quantidade de usuários deve ser maior que zero.');
+      }
+
+      const DEFAULT_AMOUNT = 15;
+      const users = await prisma.user.findMany({
+        take: amount ? amount : DEFAULT_AMOUNT,
+        orderBy: { name: 'asc' },
+      });
+      
+      return users;
+    },
   },
 
   Mutation: {
