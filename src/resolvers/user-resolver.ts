@@ -28,9 +28,24 @@ const createNewUser = async (userData: UserInput): Promise<User> => {
 
 export const resolvers = {
   Query: {
-    users: async (): Promise<User[]> => {
-      return await prisma.user.findMany();
+    user: async (_: unknown, args: { id: string }, context: { user: string | null }): Promise<User> => {
+      const { id } = args;
+
+      if(!context.user){
+       throw new CustomError('Usuário não autenticado ou tempo de login expirado.', 401, 'Faça login para continuar.');
+      }
+      
+      const user = await prisma.user.findUnique({
+        where: { id: Number(id) },
+      });
+
+      if (!user) {
+        throw new CustomError('Usuário não encontrado no Banco de Dados', 404, 'Tente novamente com um ID válido.');
+      }
+
+      return user;
     },
+
     hello: async (): Promise<string> => {
       return 'Hello, World!';
     },
