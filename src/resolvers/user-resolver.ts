@@ -52,11 +52,11 @@ export const resolvers = {
         throw new CustomError('Usuário não autenticado ou tempo de login expirado.', 401, 'Faça login para continuar.');
       }
 
-      if (typeof(amount) !== 'number'){
+      if (typeof(amount) !== 'number' || amount === null || amount === undefined){
         throw new CustomError('Entrada inválida', 400, 'A quantidade de usuários deve ser um número.');
       }
 
-      if (amount === null || amount === undefined || amount <= 0) {
+      if (amount <= 0) {
         throw new CustomError('Quantidade inválida', 400, 'A quantidade de usuários deve ser maior que zero.');
       }
 
