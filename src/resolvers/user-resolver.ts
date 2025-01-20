@@ -1,6 +1,7 @@
 import { UserInput, User, LoginInput } from '../types/types';
 import { validateUserInput } from '../validation';
 import { CustomError } from '../errors/format-error';
+import { validateAuth } from '../utils/auth-utils';
 import prisma from '../prisma';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -31,16 +32,14 @@ export const resolvers = {
     user: async (_: unknown, args: { id: string }, context: { user: string | null }): Promise<User> => {
       const { id } = args;
 
-      if(!context.user){
-       throw new CustomError('Usuário não autenticado ou tempo de login expirado.', 401, 'Faça login para continuar.');
-      }
-      
+      validateAuth(context.user);
+
       const user = await prisma.user.findUnique({
         where: { id: Number(id) },
       });
 
       if (!user) {
-        throw new CustomError('Usuário não encontrado no Banco de Dados', 404, 'Tente novamente com um ID válido.');
+        throw new CustomError('Usuário não encontrado.', 404, 'Tente novamente com um ID válido.');
       }
 
       return user;
@@ -51,9 +50,7 @@ export const resolvers = {
     createUser: async (_: unknown, args: { userData: UserInput }, context: { user: string | null }): Promise<User> => {
       const { userData } = args;
 
-      if (!context.user) {
-        throw new CustomError('Usuário não autenticado ou tempo de login expirado.', 401, 'Faça login para continuar.');
-      }
+      validateAuth(context.user);
 
       validateUserInput(userData);
 
@@ -83,9 +80,9 @@ export const resolvers = {
 
       const expiresIn = loginData.rememberMe ? '7d' : '1h';
 
-      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET as string ,{ expiresIn }); 
+      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET as string, { expiresIn });
 
       return { user, token };
-    },
+    }
   },
 };
