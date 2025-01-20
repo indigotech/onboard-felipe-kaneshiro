@@ -27,7 +27,6 @@ const createNewUser = async (userData: UserInput): Promise<User> => {
   });
 };
 
-const DEFAULT_AMOUNT = 15;
 export const resolvers = {
   Query: {
     user: async (_: unknown, args: { id: string }, context: { user: string | null }): Promise<User> => {
@@ -46,15 +45,11 @@ export const resolvers = {
       return user;
     },
 
-    Users: async (_: unknown, args: { amount: number | null }, context: { user: string | null }): Promise<User[]> => {
-      const { amount = DEFAULT_AMOUNT } = args;
+    Users: async (_: unknown, args: { amount: number }, context: { user: string | null }): Promise<User[]> => {
+      const { amount } = args;
 
       if (!context.user) {
         throw new CustomError('Usuário não autenticado ou tempo de login expirado.', 401, 'Faça login para continuar.');
-      }
-
-      if (typeof amount !== 'number'){
-        throw new CustomError('Entrada inválida', 400, 'A quantidade de usuários deve ser um número.');
       }
 
       if (amount <= 0) {
@@ -62,7 +57,7 @@ export const resolvers = {
       }
 
       const users = await prisma.user.findMany({
-        take: amount ? amount : DEFAULT_AMOUNT,
+        take: amount,
         orderBy: { name: 'asc' },
       });
       
