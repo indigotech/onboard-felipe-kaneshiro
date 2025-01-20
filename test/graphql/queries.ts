@@ -1,5 +1,5 @@
 export const USER_QUERY = (userId: number) => ({
-    query: `
+  query: `
         query User($id: ID!) {
             user(id: $id) {
                 id
@@ -9,5 +9,5 @@ export const USER_QUERY = (userId: number) => ({
             }
         }
     `,
-    variables: { id: userId },
+  variables: { id: userId },
 });
