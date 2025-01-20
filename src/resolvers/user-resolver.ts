@@ -44,11 +44,7 @@ export const resolvers = {
       }
 
       return user;
-    },
-
-    hello: async (): Promise<string> => {
-      return 'Hello, World!';
-    },
+    }
   },
 
   Mutation: {
