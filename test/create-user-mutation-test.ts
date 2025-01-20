@@ -89,6 +89,8 @@ describe('Create User Mutation', () => {
     
     expect(response.data.errors).to.exist;
     expect(response.data.errors[0].message).to.be.eq("Email inserido já está em uso.");
+    expect(response.data.errors[0].code).to.be.eq(409);
+    expect(response.data.errors[0].details).to.be.eq("Escolha um email diferente.");
   });
 
 
@@ -116,6 +118,8 @@ describe('Create User Mutation', () => {
     const response = await axios.post("http://localhost:4000", userData).catch(error => error.response);
 
     expect(response.data.errors).to.exist;
+    expect(response.data.errors[0].message).to.be.eq("Senha inválida");
+    expect(response.data.errors[0].code).to.be.eq(400);
     expect(response.data.errors[0].details).to.be.eq("A senha deve conter pelo menos 6 caracteres.");
   });
 
@@ -144,6 +148,8 @@ describe('Create User Mutation', () => {
     const response = await axios.post("http://localhost:4000", userData).catch(error => error.response);
 
     expect(response.data.errors).to.exist;
+    expect(response.data.errors[0].message).to.be.eq("Senha inválida");
+    expect(response.data.errors[0].code).to.be.eq(400);
     expect(response.data.errors[0].details).to.be.eq("A senha deve conter pelo menos 1 letra e 1 número.");
   });
 
@@ -172,6 +178,8 @@ describe('Create User Mutation', () => {
     const response = await axios.post("http://localhost:4000", userData).catch(error => error.response);
 
     expect(response.data.errors).to.exist;
+    expect(response.data.errors[0].message).to.be.eq("Senha inválida");
+    expect(response.data.errors[0].code).to.be.eq(400);
     expect(response.data.errors[0].details).to.be.eq("A senha deve conter pelo menos 1 letra e 1 número.");
   });
 });

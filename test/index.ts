@@ -1,8 +1,6 @@
 import { server } from '../src/server';
 import prisma from '../src/prisma';
 
-console.log(process.env.DATABASE_URL);
-
 before(async () => {
   await prisma.$connect();
   await server.listen({ port: 4000 });

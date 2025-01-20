@@ -12,7 +12,7 @@ const checkEmailExistence = async (email: string): Promise<void> => {
     throw new CustomError(
       "Email inserido já está em uso.",
       409,
-      "Ecscolha um email diferente."
+      "Escolha um email diferente."
       );
   }
 };
