@@ -3,11 +3,17 @@ import { gql } from 'apollo-server';
 export const typeDefs = gql`
   type Query {
     user(id: ID!): User!
-    Users(pageData: PageInfoInput): PageInfo!
+    Users(pageData: PaginationInput): UserPagination!
   }
   type Mutation {
     createUser(userData: UserInput!): User!
     login(loginData: LoginInput!): Login!
+  }
+  type User {
+    name: String!
+    id: ID!
+    email: String!
+    birthDate: String!
   }
   input UserInput {
     name: String!
@@ -15,11 +21,9 @@ export const typeDefs = gql`
     password: String!
     birthDate: String!
   }
-  type User {
-    id: ID!
-    name: String!
-    email: String!
-    birthDate: String!
+  type Login {
+    user: User!
+    token: String!
   }
   input LoginInput {
     email: String!
@@ -29,18 +33,19 @@ export const typeDefs = gql`
   type Login {
     user: User!
     token: String!
+  }
   type PageInfo {
     users: [User!]!
-    usersPreviousPage: PageNavigation!
-    usersNextPage: PageNavigation!
+    usersPreviousPage: PaginationInfo!
+    usersNextPage: PaginationInfo!
   }
-  input PageInfoInput {
-    amount: Int = 15
-    skip: Int = 0
+  input PaginationInput {
+    limit: Int = 15
+    offset: Int = 0
   }
-  type PageNavigation {
+  type PaginationInfo {
     hasMoreUsers: Boolean!
-    quantity: Int!
+    totalUsersInPage: Int!
   }
 `;
 
@@ -64,18 +69,18 @@ export interface LoginInput {
   rememberMe?: boolean;
 }
 
-export interface PageInfo {
+export interface UserPagination {
   users: User[];
-  usersPreviousPage: PageNavigation;
-  usersNextPage: PageNavigation;
+  usersPreviousPage: PaginationInfo;
+  usersNextPage: PaginationInfo;
 }
 
-export interface PageInfoInput {
-  amount: number;
-  skip: number;
+export interface PaginationInput {
+  limit: number;
+  offset: number;
 }
 
-export interface PageNavigation {
+export interface PaginationInfo {
   hasMoreUsers: boolean;
-  quantity: number;
+  totalUsersInPage: number;
 }
