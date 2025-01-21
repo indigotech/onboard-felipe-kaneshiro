@@ -8,9 +8,23 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
   name      String
   password  String
   birthDate DateTime
+  addresses Address[]
+}
+
+model Address {
+  id           Int     @id @default(autoincrement())
+  user         User    @relation(fields: [userID], references: [id], onDelete: Cascade)
+  userID       Int
+  cep          String
+  street       String
+  streetNumber Int
+  complement   String?
+  neighborhood String
+  city         String
+  state        String
 }
