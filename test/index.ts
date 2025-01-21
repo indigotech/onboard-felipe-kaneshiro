@@ -12,4 +12,7 @@ after(async () => {
   await server.stop();
 });
 
+
+import './query-test';
 import './create-user-mutation-test';
+import './login-mutation-test';
