@@ -3,11 +3,12 @@ import { USERS_QUERY } from './graphql/queries';
 import { seed } from '../src/seed/seed';
 import jwt from 'jsonwebtoken';
 import axios from 'axios';
+import prisma from '../src/prisma';
 
 describe('Users Query', function () {
-  let authToken: string;
-
-  beforeEach(async () => {
+    let authToken: string;
+    
+    beforeEach(async () => {
     await seed();
     authToken = jwt.sign({ userID: 1 }, process.env.JWT_SECRET as string, { expiresIn: '1h' });
   });
@@ -68,5 +69,7 @@ describe('Users Query', function () {
     expect(response.data.errors[0].message).to.eq('Usuário não autenticado ou tempo de login expirado.');
     expect(response.data.errors[0].code).to.eq(401);
     expect(response.data.errors[0].details).to.eq('Faça login para continuar.');
+    
+    await prisma.user.deleteMany();
   });
 });
