@@ -5,7 +5,6 @@ import { validateAuth } from '../utils/auth-utils';
 import prisma from '../prisma';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { validateAuth } from '../utils/auth-utils';
 
 const checkEmailExistence = async (email: string): Promise<void> => {
   const existingUser = await prisma.user.findUnique({
@@ -39,6 +38,7 @@ export const resolvers = {
 
       const user = await prisma.user.findUnique({
         where: { id: Number(id) },
+        include: { addresses: true },
       });
 
       if (!user) {
@@ -97,6 +97,7 @@ export const resolvers = {
 
       const user = await prisma.user.findUnique({
         where: { email: loginData.email },
+        include: { addresses: true },
       });
 
       if (!user) {
