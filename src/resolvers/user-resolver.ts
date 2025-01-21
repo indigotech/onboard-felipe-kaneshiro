@@ -55,7 +55,7 @@ export const resolvers = {
       validateAuth(context.user);
 
       if (pageData.amount <= 0) {
-        throw new CustomError('Quantidade inválida', 400, 'A quantidade de usuários deve ser maior que zero.');
+        throw new CustomError('Quantidade inválida.', 400, 'A quantidade de usuários deve ser maior que zero.');
       }
 
       const users = await prisma.user.findMany({
