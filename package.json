@@ -10,11 +10,13 @@
     "check-format": "prettier --check ."
   },
   "dependencies": {
+    "@apollo/server": "4.11.3",
     "@prisma/client": "6.2.1",
     "apollo-server": "3.13.0",
     "axios": "1.7.9",
     "bcrypt": "5.1.1",
     "dotenv": "16.4.7",
+    "dotenv-cli": "8.0.0",
     "express": "4.21.2",
     "graphql": "16.10.0",
     "graphql-http": "1.22.3",

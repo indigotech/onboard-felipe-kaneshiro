@@ -1,6 +1,7 @@
 import { UserInput, User } from '../types/types';
 import { validateUserInput } from '../validation';
 import prisma from '../prisma';
+import { CustomError } from '../errors/format-error';
 import bcrypt from 'bcrypt';
 
 const checkEmailExistence = async (email: string): Promise<void> => {
@@ -8,7 +9,11 @@ const checkEmailExistence = async (email: string): Promise<void> => {
     where: { email },
   });
   if (existingUser) {
-    throw new Error(`E-mail ${email} is already in use.`);
+    throw new CustomError(
+      "Email inserido já está em uso.",
+      409,
+      "Escolha um email diferente."
+      );
   }
 };
 
@@ -29,24 +34,22 @@ export const resolvers = {
     users: async (): Promise<User[]> => {
       return await prisma.user.findMany();
     },
+    hello: async (): Promise<string> => {
+      return 'Hello, World!';
+    },
   },
 
   Mutation: {
     createUser: async (_: unknown, args: { userData: UserInput }): Promise<User> => {
       const { userData } = args;
 
-      try {
-        await checkEmailExistence(userData.email);
+      validateUserInput(userData);
+      
+      await checkEmailExistence(userData.email);
 
-        validateUserInput(userData);
+      const newUser = await createNewUser(userData);
 
-        const newUser = await createNewUser(userData);
-
-        return newUser;
-      } catch (error) {
-        console.error('Failed to create user:', (error as Error).message);
-        throw new Error((error as Error).message);
-      }
+      return newUser;
     },
   },
 };
