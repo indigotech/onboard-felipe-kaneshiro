@@ -19,12 +19,14 @@ const checkEmailExistence = async (email: string): Promise<void> => {
 const createNewUser = async (userData: UserInput): Promise<User> => {
   const hashedPassword = await bcrypt.hash(userData.password, 10);
 
-  return prisma.user.create({
+  return await prisma.user.create({
     data: {
       ...userData,
       password: hashedPassword,
       birthDate: new Date(userData.birthDate),
+      addresses: { create: userData.addresses },
     },
+    include: { addresses: true },
   });
 };
 

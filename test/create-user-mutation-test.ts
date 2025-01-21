@@ -2,6 +2,7 @@
 import { compare } from 'bcrypt';
 import { expect } from 'chai';
 import { UserInput } from '../src/types/types';
+import { CREATE_USER_MUTATION } from './mutations';
 import axios from 'axios';
 import prisma from '../src/prisma';
 import bcrypt from 'bcrypt';
@@ -18,32 +19,37 @@ describe('Create User Mutation', () => {
     await prisma.user.deleteMany();
   });
 
-  
-  it('should create a user successfully', async () => {
+  it('should create a user with 2 addresses successfully', async () => {
     const newUser: UserInput = {
       name: 'Test User',
       email: 'test@gmail.com',
       password: 'testpass123',
       birthDate: '2001-01-01',
+      addresses: [
+        {
+          cep: '00000-000',
+          street: 'Test Street',
+          streetNumber: 123,
+          neighborhood: 'Test Neighborhood',
+          city: 'Test City',
+          state: 'TEST',
+        },
+        {
+          cep: '11111-111',
+          street: 'Test Street 2',
+          streetNumber: 456,
+          neighborhood: 'Test Neighborhood 2',
+          city: 'Test City 2',
+          state: 'TEST 2',
+        },
+      ],
     };
-    
-    const userData = {
-      query: ` 
-      mutation Mutation($data: UserInput!) {
-        createUser(userData: $data) {
-          id
-          name
-          email
-          birthDate
-          }
-        }
-      `,
-      variables: { data: newUser },
-    };
+
+    const userData = CREATE_USER_MUTATION(newUser);
 
     const headers = { Authorization: `Bearer ${authToken}` };
 
-    const response = await axios.post('http://localhost:4000', userData, { headers });
+    const response = await axios.post('http://localhost:4000', userData, { headers }).catch((error) => error.response);
 
     const createdUser = response.data.data.createUser;
     const expectedBirthDateInMs = new Date(newUser.birthDate).getTime();
@@ -54,14 +60,21 @@ describe('Create User Mutation', () => {
       birthDate: String(expectedBirthDateInMs),
     });
 
-    const savedUser = (await prisma.user.findUnique({ where: { email: newUser.email } }))!;
+    const savedUser = (await prisma.user.findUnique({
+      where: { email: newUser.email },
+      include: { addresses: true },
+    }))!;
 
     expect(savedUser.name).to.eq(newUser.name);
     expect(savedUser.email).to.eq(newUser.email);
     expect(savedUser.birthDate.getTime()).to.be.eq(expectedBirthDateInMs);
     expect(await compare(newUser.password, savedUser.password)).to.be.eq(true);
-  });
 
+    expect(savedUser.addresses).to.have.lengthOf(2);
+    for (let index = 0; index < savedUser.addresses.length; index++) {
+      expect(savedUser.addresses[index]).to.deep.include(newUser.addresses[index]);
+    }
+  });
 
   it('should return an error when trying to create a user with an existing email', async () => {
     const duplicateUser: UserInput = {
@@ -69,6 +82,7 @@ describe('Create User Mutation', () => {
       email: 'duplicate@gmail.com',
       password: 'testpass123',
       birthDate: '2001-01-01',
+      addresses: [],
     };
 
     await prisma.user.create({
@@ -76,24 +90,13 @@ describe('Create User Mutation', () => {
         ...duplicateUser,
         birthDate: new Date(duplicateUser.birthDate),
         password: await bcrypt.hash(duplicateUser.password, 10),
+        addresses: { create: [] },
       },
     });
 
-    const userData = {
-      query: `
-        mutation Mutation($data: UserInput!) {
-          createUser(userData: $data) {
-            id
-            name
-            email
-            birthDate
-          }
-        }
-      `,
-      variables: { data: duplicateUser },
-    };
+    const userData = CREATE_USER_MUTATION(duplicateUser);
 
-    const headers = { Authorization: `Bearer ${authToken}`};
+    const headers = { Authorization: `Bearer ${authToken}` };
 
     const response = await axios.post('http://localhost:4000', userData, { headers }).catch((error) => error.response);
 
@@ -103,29 +106,18 @@ describe('Create User Mutation', () => {
     expect(response.data.errors[0].details).to.be.eq('Ecscolha um email diferente.');
   });
 
-
   it('should return an error when the password is less than 6 characters long', async () => {
     const invalidPasswordUser: UserInput = {
       name: 'Test User',
       email: 'test@gmail.com',
       password: '123',
       birthDate: '2001-01-01',
+      addresses: [],
     };
 
-    const userData = {
-      query: `
-        mutation Mutation($data: UserInput!) {
-          createUser(userData: $data) {
-            id
-            name
-            email
-          }
-        }
-      `,
-      variables: { data: invalidPasswordUser },
-    };
+    const userData = CREATE_USER_MUTATION(invalidPasswordUser);
 
-    const headers = { Authorization: `Bearer ${authToken}`};
+    const headers = { Authorization: `Bearer ${authToken}` };
 
     const response = await axios.post('http://localhost:4000', userData, { headers }).catch((error) => error.response);
 
@@ -135,29 +127,18 @@ describe('Create User Mutation', () => {
     expect(response.data.errors[0].details).to.be.eq('A senha deve conter pelo menos 6 caracteres.');
   });
 
-
   it('should return an error when the password does not have 1 letter', async () => {
-    const userWithNoLetter = {
+    const userWithNoLetter: UserInput = {
       name: 'Test User',
       email: 'test@gmail.com',
       password: '123456',
       birthDate: '2001-01-01',
+      addresses: [],
     };
 
-    const userData = {
-      query: `
-        mutation Mutation($data: UserInput!) {
-          createUser(userData: $data) {
-            id
-            name
-            email
-          }
-        }
-      `,
-      variables: { data: userWithNoLetter },
-    };
+    const userData = CREATE_USER_MUTATION(userWithNoLetter);
 
-    const headers = { Authorization: `Bearer ${authToken}`};
+    const headers = { Authorization: `Bearer ${authToken}` };
 
     const response = await axios.post('http://localhost:4000', userData, { headers }).catch((error) => error.response);
 
@@ -167,29 +148,18 @@ describe('Create User Mutation', () => {
     expect(response.data.errors[0].details).to.be.eq('A senha deve conter pelo menos 1 letra e 1 número.');
   });
 
-
   it('should return an error when the password does not have 1 number', async () => {
-    const userWithNoNumber = {
+    const userWithNoNumber: UserInput = {
       name: 'Test User',
       email: 'test@gmail.com',
       password: 'abcdef',
       birthDate: '2001-01-01',
+      addresses: [],
     };
 
-    const userData = {
-      query: `
-        mutation Mutation($data: UserInput!) {
-          createUser(userData: $data) {
-            id
-            name
-            email
-          }
-        }
-      `,
-      variables: { data: userWithNoNumber },
-    };
+    const userData = CREATE_USER_MUTATION(userWithNoNumber);
 
-    const headers = { Authorization: `Bearer ${authToken}`};
+    const headers = { Authorization: `Bearer ${authToken}` };
 
     const response = await axios.post('http://localhost:4000', userData, { headers }).catch((error) => error.response);
 
@@ -199,32 +169,19 @@ describe('Create User Mutation', () => {
     expect(response.data.errors[0].details).to.be.eq('A senha deve conter pelo menos 1 letra e 1 número.');
   });
 
-
   it('should return an error when an invalid token is provided', async () => {
-    const userData = {
-      query: ` 
-        mutation Mutation($data: UserInput!) {
-          createUser(userData: $data) {
-            id
-            name
-            email
-            birthDate
-          }
-        }
-      `,
-      variables: {
-        data: {
-          name: 'Invalid Token User',
-          email: 'invalidtoken@gmail.com',
-          password: 'test123',
-          birthDate: '2001-01-01',
-        },
-      },
+    const anyUser: UserInput = {
+      name: 'Test User',
+      email: 'test@gmail.com',
+      password: 'abcdef',
+      birthDate: '2001-01-01',
+      addresses: [],
     };
+    const userData = CREATE_USER_MUTATION(anyUser);
 
     const headers = { Authorization: 'Bearer invalid.token.here' };
 
-    const response = await axios.post('http://localhost:4000', userData, { headers }).catch(error => error.response);
+    const response = await axios.post('http://localhost:4000', userData, { headers }).catch((error) => error.response);
 
     expect(response.data.errors).to.exist;
     expect(response.data.errors[0].message).to.eq('Usuário não autenticado ou tempo de login expirado.');
