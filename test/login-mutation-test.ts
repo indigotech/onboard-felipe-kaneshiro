@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import axios from 'axios';
 import prisma from '../src/prisma';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 describe('Login Mutation', () => {
   let createdUser: User;
@@ -21,6 +22,7 @@ describe('Login Mutation', () => {
   afterEach(async () => {
     await prisma.user.deleteMany();
   });
+
 
   it('should login a user successfully', async () => {
     const userCredentials: LoginInput = {
@@ -54,8 +56,11 @@ describe('Login Mutation', () => {
     expect(loggedInUser.email).to.be.eq(createdUser.email);
     expect(Number(loggedInUser.id)).to.be.eq(createdUser.id);
     expect(Number(loggedInUser.birthDate)).to.be.eq(new Date(createdUser.birthDate).getTime());
-    expect(loginResponse.data.data.login.token).to.be.eq('arroz');
+
+    const token = loginResponse.data.data.login.token;
+    expect(jwt.verify(token, process.env.JWT_SECRET as string)).to.deep.include({ userId: Number(createdUser.id) });
   });
+
 
   it('should return an error when the email does not exist', async () => {
     const invalidUser: LoginInput = {
@@ -85,6 +90,7 @@ describe('Login Mutation', () => {
     expect(response.data.errors[0].code).to.be.eq(404);
     expect(response.data.errors[0].details).to.be.eq('Verifique o email e tente novamente.');
   });
+  
 
   it('should return an error when the password is incorrect', async () => {
     const userCredentials: LoginInput = {

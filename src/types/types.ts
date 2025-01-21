@@ -24,6 +24,7 @@ export const typeDefs = gql`
   input LoginInput {
     email: String!
     password: String!
+    rememberMe: Boolean
   }
   type Login {
     user: User!
@@ -48,4 +49,5 @@ export interface UserInput {
 export interface LoginInput {
   email: string;
   password: string;
+  rememberMe?: boolean;
 }
