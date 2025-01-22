@@ -27,14 +27,7 @@ export const USERS_QUERY = (pageData?: PaginationInput) => ({
   query: `
         query Users($pageData: PaginationInput) {
           Users(pageData: $pageData) {
-            usersPreviousPage {
-              hasMoreUsers
-              totalUsersInPage
-            }
-            usersNextPage {
-              hasMoreUsers
-              totalUsersInPage
-            }
+            totalUsers
             users {
               name
               id
@@ -52,6 +45,8 @@ export const USERS_QUERY = (pageData?: PaginationInput) => ({
                 state
               }
             }
+            hasPreviousPage
+            hasNextPage
           }
         }
     `,

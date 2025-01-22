@@ -20,14 +20,14 @@ export const typeDefs = gql`
     email: String!
     password: String!
     birthDate: String!
-    addresses: [Address!]!
+    addresses: [AddressInput!]!
   }
   type User {
     id: ID!
     name: String!
     email: String!
     birthDate: String!
-    addresses: [AddressInput!]!
+    addresses: [Address!]!
   }
   input LoginInput {
     email: String!
@@ -64,6 +64,17 @@ export const typeDefs = gql`
     limit: Int = 15
     offset: Int = 0
   }
+  type UserPagination {
+    totalUsers: Int!
+    users: [User!]!
+    hasPreviousPage: Boolean!
+    hasNextPage: Boolean!
+  }
+
+  type Login {
+    token: String!
+    user: User!
+  }
 `;
 
 export interface User {
@@ -71,7 +82,7 @@ export interface User {
   name: string;
   email: string;
   birthDate: Date;
-  addresses?: Address[];
+  addresses: Address[];
 }
 
 export interface UserInput {
