@@ -33,10 +33,9 @@ describe('Users Query', function () {
     const returnedUsers = response.data.data.Users;
 
     expect(returnedUsers.users.length).to.eq(10);
-    expect(returnedUsers.usersPreviousPage.hasMoreUsers).to.eq(false);
-    expect(returnedUsers.usersPreviousPage.totalUsersInPage).to.eq(0);
-    expect(returnedUsers.usersNextPage.hasMoreUsers).to.eq(true);
-    expect(returnedUsers.usersNextPage.totalUsersInPage).to.eq(41);
+    expect(returnedUsers.totalUsers).to.eq(users.length);
+    expect(returnedUsers.hasPreviousPage).to.eq(false);
+    expect(returnedUsers.hasNextPage).to.eq(true);
 
     for (let i = 0; i < limit; i++) {
       expect(returnedUsers.users[i]).to.deep.include({
@@ -62,10 +61,9 @@ describe('Users Query', function () {
     const returnedUsers = response.data.data.Users;
 
     expect(returnedUsers.users.length).to.eq(15);
-    expect(response.data.data.Users.usersPreviousPage.hasMoreUsers).to.eq(false);
-    expect(response.data.data.Users.usersPreviousPage.totalUsersInPage).to.eq(0);
-    expect(response.data.data.Users.usersNextPage.hasMoreUsers).to.eq(true);
-    expect(response.data.data.Users.usersNextPage.totalUsersInPage).to.eq(36);
+    expect(returnedUsers.totalUsers).to.eq(users.length);
+    expect(returnedUsers.hasPreviousPage).to.eq(false);
+    expect(returnedUsers.hasNextPage).to.eq(true);
 
     for (let i = 0; i < returnedUsers.users.length; i++) {
       expect(returnedUsers.users[i]).to.deep.include({
@@ -93,10 +91,9 @@ describe('Users Query', function () {
     const returnedUsers = response.data.data.Users;
 
     expect(returnedUsers.users.length).to.eq(10);
-    expect(returnedUsers.usersPreviousPage.hasMoreUsers).to.eq(true);
-    expect(returnedUsers.usersPreviousPage.totalUsersInPage).to.eq(10);
-    expect(returnedUsers.usersNextPage.hasMoreUsers).to.eq(true);
-    expect(returnedUsers.usersNextPage.totalUsersInPage).to.eq(31);
+    expect(returnedUsers.totalUsers).to.eq(users.length);
+    expect(returnedUsers.hasPreviousPage).to.eq(true);
+    expect(returnedUsers.hasNextPage).to.eq(true);
 
     for (let i = 0; i < limit; i++) {
       expect(returnedUsers.users[i]).to.deep.include({
@@ -124,10 +121,9 @@ describe('Users Query', function () {
     const returnedUsers = response.data.data.Users;
 
     expect(returnedUsers.users.length).to.eq(11);
-    expect(returnedUsers.usersPreviousPage.hasMoreUsers).to.eq(true);
-    expect(returnedUsers.usersPreviousPage.totalUsersInPage).to.eq(40);
-    expect(returnedUsers.usersNextPage.hasMoreUsers).to.eq(false);
-    expect(returnedUsers.usersNextPage.totalUsersInPage).to.eq(0);
+    expect(returnedUsers.totalUsers).to.eq(users.length);
+    expect(returnedUsers.hasPreviousPage).to.eq(true);
+    expect(returnedUsers.hasNextPage).to.eq(false);
 
     for (let i = 0; i < limit; i++) {
       expect(returnedUsers.users[i]).to.deep.include({
