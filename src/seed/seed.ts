@@ -1,8 +1,9 @@
 import { faker } from '@faker-js/faker';
 import prisma from '../prisma';
 import bcrypt from 'bcrypt';
+import { User } from '../types/types';
 
-export async function seed() {
+export async function seed(): Promise<User[]> {
   try {
     await prisma.user.deleteMany();
     await prisma.address.deleteMany();
@@ -19,6 +20,7 @@ export async function seed() {
           cep: '00000-000',
           street: 'Admin Street',
           streetNumber: 123,
+          complement: 'Admin Complement',
           neighborhood: 'Admin Neighborhood',
           city: 'Admin City',
           state: 'ADMIN',
@@ -54,8 +56,10 @@ export async function seed() {
       });
     }
 
+    const createdUsers: User[] = [];
+
     for (const user of users) {
-      await prisma.user.create({
+      const newUser = await prisma.user.create({
         data: {
           name: user.name,
           email: user.email,
@@ -65,8 +69,12 @@ export async function seed() {
             create: user.addresses,
           },
         },
+        include: { addresses: true },
       });
+      createdUsers.push(newUser);
     }
+
+    return createdUsers.sort((a, b) => a.name.localeCompare(b.name));
   } catch (error) {
     console.error('Error seeding the database:', error);
     process.exit(1);
@@ -74,4 +82,3 @@ export async function seed() {
     await prisma.$disconnect();
   }
 }
-seed();
