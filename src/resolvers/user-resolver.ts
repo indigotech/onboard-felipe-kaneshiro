@@ -43,7 +43,26 @@ export const resolvers = {
       }
 
       return user;
-    }
+    },
+
+    Users: async (_: unknown, args: { amount: number }, context: { user: string | null }): Promise<User[]> => {
+      const { amount } = args;
+
+      if (!context.user) {
+        throw new CustomError('Usuário não autenticado ou tempo de login expirado.', 401, 'Faça login para continuar.');
+      }
+
+      if (amount <= 0) {
+        throw new CustomError('Quantidade inválida', 400, 'A quantidade de usuários deve ser maior que zero.');
+      }
+
+      const users = await prisma.user.findMany({
+        take: amount,
+        orderBy: { name: 'asc' },
+      });
+      
+      return users;
+    },
   },
 
   Mutation: {
