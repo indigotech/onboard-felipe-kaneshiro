@@ -1,10 +1,11 @@
-import { UserInput, User, LoginInput, PageInfo, PageInfoInput, PageNavigation } from '../types/types';
+import { UserInput, User, LoginInput, PaginationInput, UserPagination } from '../types/types';
 import { validateUserInput } from '../validation';
 import { CustomError } from '../errors/format-error';
 import { validateAuth } from '../utils/auth-utils';
 import prisma from '../prisma';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { validateAuth } from '../utils/auth-utils';
 
 const checkEmailExistence = async (email: string): Promise<void> => {
   const existingUser = await prisma.user.findUnique({
@@ -47,36 +48,30 @@ export const resolvers = {
 
     Users: async (
       _: unknown,
-      args: { pageData: PageInfoInput },
+      args: { pageData: PaginationInput },
       context: { user: string | null },
-    ): Promise<PageInfo> => {
+    ): Promise<UserPagination> => {
       const { pageData } = args;
 
       validateAuth(context.user);
 
-      if (pageData.amount <= 0) {
+      if (pageData.limit <= 0) {
         throw new CustomError('Quantidade inválida.', 400, 'A quantidade de usuários deve ser maior que zero.');
       }
 
       const users = await prisma.user.findMany({
-        take: pageData.amount,
+        take: pageData.limit,
         orderBy: { name: 'asc' },
-        skip: pageData.skip,
+        skip: pageData.offset,
       });
 
-      const usersPreviousPage: PageNavigation = {
-        hasMoreUsers: pageData.skip > 0,
-        quantity: pageData.skip,
-      };
-
-      const lastUser = pageData.skip + pageData.amount;
+      const lastUser = pageData.offset + pageData.limit;
       const totalUsers = await prisma.user.count();
-      const usersNextPage: PageNavigation = {
-        hasMoreUsers: lastUser < totalUsers,
-        quantity: totalUsers - lastUser > 0 ? totalUsers - lastUser : 0,
-      };
+      const hasNextPage = lastUser < totalUsers;
 
-      return { usersPreviousPage, users, usersNextPage };
+      const hasPreviousPage = pageData.offset > 0;
+
+      return { users, totalUsers, hasNextPage, hasPreviousPage };
     },
   },
 
