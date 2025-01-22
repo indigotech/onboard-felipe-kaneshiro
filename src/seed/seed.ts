@@ -6,9 +6,9 @@ async function seed() {
   try {
     await prisma.user.deleteMany();
 
-    const User = [];
+    const users = [];
 
-    User.push({
+    users.push({
       name: 'Admin',
       email: 'admin@admin.com',
       password: await bcrypt.hash('admin123', 10),
@@ -22,7 +22,7 @@ async function seed() {
       const randomHashedPassword = await bcrypt.hash(randomPassword, 10);
       const randomBirthDate = faker.date.birthdate({ min: 2000, max: 2024, mode: 'year' });
 
-      User.push({
+      users.push({
         name: randomName,
         email: randomEmail,
         password: randomHashedPassword,
@@ -30,7 +30,7 @@ async function seed() {
       });
     }
 
-    await prisma.user.createMany({ data: User });
+    await prisma.user.createMany({ data: users });
   } catch (error) {
     console.error('Error seeding the database:', error);
     process.exit(1);
