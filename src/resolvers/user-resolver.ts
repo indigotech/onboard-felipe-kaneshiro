@@ -1,10 +1,11 @@
-import { UserInput, User, LoginInput } from '../types/types';
+import { UserInput, User, LoginInput, PaginationInput, UserPagination } from '../types/types';
 import { validateUserInput } from '../validation';
 import { CustomError } from '../errors/format-error';
 import { validateAuth } from '../utils/auth-utils';
 import prisma from '../prisma';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { validateAuth } from '../utils/auth-utils';
 
 const checkEmailExistence = async (email: string): Promise<void> => {
   const existingUser = await prisma.user.findUnique({
@@ -45,23 +46,32 @@ export const resolvers = {
       return user;
     },
 
-    Users: async (_: unknown, args: { amount: number }, context: { user: string | null }): Promise<User[]> => {
-      const { amount } = args;
+    Users: async (
+      _: unknown,
+      args: { pageData: PaginationInput },
+      context: { user: string | null },
+    ): Promise<UserPagination> => {
+      const { pageData } = args;
 
-      if (!context.user) {
-        throw new CustomError('Usuário não autenticado ou tempo de login expirado.', 401, 'Faça login para continuar.');
-      }
+      validateAuth(context.user);
 
-      if (amount <= 0) {
-        throw new CustomError('Quantidade inválida', 400, 'A quantidade de usuários deve ser maior que zero.');
+      if (pageData.limit <= 0) {
+        throw new CustomError('Quantidade inválida.', 400, 'A quantidade de usuários deve ser maior que zero.');
       }
 
       const users = await prisma.user.findMany({
-        take: amount,
+        take: pageData.limit,
         orderBy: { name: 'asc' },
+        skip: pageData.offset,
       });
-      
-      return users;
+
+      const lastUser = pageData.offset + pageData.limit;
+      const totalUsers = await prisma.user.count();
+      const hasNextPage = lastUser < totalUsers;
+
+      const hasPreviousPage = pageData.offset > 0;
+
+      return { users, totalUsers, hasNextPage, hasPreviousPage };
     },
   },
 
