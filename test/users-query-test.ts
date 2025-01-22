@@ -37,22 +37,24 @@ describe('Users Query', function () {
     expect(returnedUsers.hasPreviousPage).to.eq(false);
     expect(returnedUsers.hasNextPage).to.eq(true);
 
-    for (let i = 0; i < limit; i++) {
-      expect(returnedUsers.users[i]).to.deep.include({
-        id: users[i + offset].id.toString(),
-        name: users[i + offset].name,
-        email: users[i + offset].email,
-        birthDate: users[i + offset].birthDate.getTime().toString(),
-        addresses: users[i + offset].addresses.map((address) => ({
+    expect(returnedUsers.users).to.deep.eq(
+      users.slice(offset, offset + limit).map((user) => ({
+        id: user.id.toString(),
+        name: user.name,
+        email: user.email,
+        birthDate: user.birthDate.getTime().toString(),
+        addresses: user.addresses.map((address) => ({
           ...address,
           id: address.id.toString(),
           userID: address.userID.toString(),
         })),
-      });
-    }
+      })),
+    );
   });
 
   it('should return paginated users successfully for default values', async () => {
+    const defaultLimit = 15;
+    const defaultOffset = 0;
     const queryUsers = USERS_QUERY();
 
     const headers = { Authorization: `Bearer ${authToken}` };
@@ -65,19 +67,19 @@ describe('Users Query', function () {
     expect(returnedUsers.hasPreviousPage).to.eq(false);
     expect(returnedUsers.hasNextPage).to.eq(true);
 
-    for (let i = 0; i < returnedUsers.users.length; i++) {
-      expect(returnedUsers.users[i]).to.deep.include({
-        id: users[i].id.toString(),
-        name: users[i].name,
-        email: users[i].email,
-        birthDate: users[i].birthDate.getTime().toString(),
-        addresses: users[i].addresses.map((address) => ({
+    expect(returnedUsers.users).to.deep.eq(
+      users.slice(defaultOffset, defaultOffset + defaultLimit).map((user) => ({
+        id: user.id.toString(),
+        name: user.name,
+        email: user.email,
+        birthDate: user.birthDate.getTime().toString(),
+        addresses: user.addresses.map((address) => ({
           ...address,
           id: address.id.toString(),
           userID: address.userID.toString(),
         })),
-      });
-    }
+      })),
+    );
   });
 
   it('should return paginated users with next and previous pages', async () => {
@@ -95,19 +97,19 @@ describe('Users Query', function () {
     expect(returnedUsers.hasPreviousPage).to.eq(true);
     expect(returnedUsers.hasNextPage).to.eq(true);
 
-    for (let i = 0; i < limit; i++) {
-      expect(returnedUsers.users[i]).to.deep.include({
-        id: users[i + offset].id.toString(),
-        name: users[i + offset].name,
-        email: users[i + offset].email,
-        birthDate: users[i + offset].birthDate.getTime().toString(),
-        addresses: users[i + offset].addresses.map((address) => ({
+    expect(returnedUsers.users).to.deep.eq(
+      users.slice(offset, offset + limit).map((user) => ({
+        id: user.id.toString(),
+        name: user.name,
+        email: user.email,
+        birthDate: user.birthDate.getTime().toString(),
+        addresses: user.addresses.map((address) => ({
           ...address,
           id: address.id.toString(),
           userID: address.userID.toString(),
         })),
-      });
-    }
+      })),
+    );
   });
 
   it('should return paginated users at the last page', async () => {
@@ -125,19 +127,19 @@ describe('Users Query', function () {
     expect(returnedUsers.hasPreviousPage).to.eq(true);
     expect(returnedUsers.hasNextPage).to.eq(false);
 
-    for (let i = 0; i < limit; i++) {
-      expect(returnedUsers.users[i]).to.deep.include({
-        id: users[i + offset].id.toString(),
-        name: users[i + offset].name,
-        email: users[i + offset].email,
-        birthDate: users[i + offset].birthDate.getTime().toString(),
-        addresses: users[i + offset].addresses.map((address) => ({
+    expect(returnedUsers.users).to.deep.eq(
+      users.slice(offset, offset + limit).map((user) => ({
+        id: user.id.toString(),
+        name: user.name,
+        email: user.email,
+        birthDate: user.birthDate.getTime().toString(),
+        addresses: user.addresses.map((address) => ({
           ...address,
           id: address.id.toString(),
           userID: address.userID.toString(),
         })),
-      });
-    }
+      })),
+    );
   });
 
   it('should return an error for invalid limit', async () => {
