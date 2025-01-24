@@ -2,7 +2,7 @@
 import { compare } from 'bcrypt';
 import { expect } from 'chai';
 import { UserInput } from '../src/types/types';
-import { CREATE_USER_MUTATION } from './mutations';
+import { CREATE_USER_MUTATION } from './graphql/mutations';
 import axios from 'axios';
 import prisma from '../src/prisma';
 import bcrypt from 'bcrypt';
@@ -103,7 +103,7 @@ describe('Create User Mutation', () => {
     expect(response.data.errors).to.exist;
     expect(response.data.errors[0].message).to.be.eq('Email inserido já está em uso.');
     expect(response.data.errors[0].code).to.be.eq(409);
-    expect(response.data.errors[0].details).to.be.eq('Ecscolha um email diferente.');
+    expect(response.data.errors[0].details).to.be.eq('Escolha um email diferente.');
   });
 
   it('should return an error when the password is less than 6 characters long', async () => {
