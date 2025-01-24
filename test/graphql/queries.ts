@@ -1,4 +1,4 @@
-import { PageInfoInput } from '../../src/types/types';
+import { PaginationInput } from '../../src/types/types';
 
 export const USER_QUERY = (userId: number) => ({
   query: `
@@ -8,32 +8,47 @@ export const USER_QUERY = (userId: number) => ({
                 name
                 email
                 birthDate
+                addresses {
+                    id
+                    cep
+                    street
+                    streetNumber
+                    neighborhood
+                    city
+                    state
+                }
             }
         }
     `,
   variables: { id: userId },
 });
 
-export const USERS_QUERY = (pageData?: PageInfoInput) => ({
+export const USERS_QUERY = (pageData?: PaginationInput) => ({
   query: `
-        query Users($pageData: PageInfoInput!) {
-            Users(pageData: $pageData) {
-                users {
-                    id
-                    name
-                    email
-                    birthDate
-                }
-                usersPreviousPage {
-                    hasMoreUsers
-                    quantity
-                }
-                usersNextPage {
-                    hasMoreUsers
-                    quantity
-                }
+        query Users($pageData: PaginationInput) {
+          Users(pageData: $pageData) {
+            totalUsers
+            users {
+              name
+              id
+              email
+              birthDate
+              addresses {
+                id
+                userID
+                cep
+                street
+                streetNumber
+                complement
+                neighborhood
+                city
+                state
+              }
             }
+            hasPreviousPage
+            hasNextPage
+          }
         }
     `,
-    variables: pageData ? { pageData } : { pageData: {} },
+  variables: pageData ? { pageData } : { pageData: {} },
 });

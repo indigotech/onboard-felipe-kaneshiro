@@ -1,16 +1,17 @@
 import { expect } from 'chai';
 import { USERS_QUERY } from './graphql/queries';
-import { seed } from '../src/seed/seed';
+import { seed } from '../src/seed/seedaddress';
 import jwt from 'jsonwebtoken';
 import axios from 'axios';
 import prisma from '../src/prisma';
+import { User } from '../src/types/types';
 
 describe('Users Query', function () {
   let authToken: string;
+  let users: User[];
 
   this.beforeAll(async () => {
-    await prisma.user.deleteMany();
-    await seed();
+    users = await seed();
   });
 
   beforeEach(async () => {
@@ -29,24 +30,56 @@ describe('Users Query', function () {
     const headers = { Authorization: `Bearer ${authToken}` };
     const response = await axios.post('http://localhost:4000', queryUsers, { headers });
 
-    expect(response.data.data.Users.users.length).to.eq(10);
-    expect(response.data.data.Users.usersPreviousPage.hasMoreUsers).to.eq(false);
-    expect(response.data.data.Users.usersPreviousPage.totalUsersInPage).to.eq(0);
-    expect(response.data.data.Users.usersNextPage.hasMoreUsers).to.eq(true);
-    expect(response.data.data.Users.usersNextPage.totalUsersInPage).to.eq(41);
+    const returnedUsers = response.data.data.Users;
+
+    expect(returnedUsers.users.length).to.eq(10);
+    expect(returnedUsers.totalUsers).to.eq(users.length);
+    expect(returnedUsers.hasPreviousPage).to.eq(false);
+    expect(returnedUsers.hasNextPage).to.eq(true);
+
+    expect(returnedUsers.users).to.deep.eq(
+      users.slice(offset, offset + limit).map((user) => ({
+        id: user.id.toString(),
+        name: user.name,
+        email: user.email,
+        birthDate: user.birthDate.getTime().toString(),
+        addresses: user.addresses.map((address) => ({
+          ...address,
+          id: address.id.toString(),
+          userID: address.userID.toString(),
+        })),
+      })),
+    );
   });
 
   it('should return paginated users successfully for default values', async () => {
+    const defaultLimit = 15;
+    const defaultOffset = 0;
     const queryUsers = USERS_QUERY();
 
     const headers = { Authorization: `Bearer ${authToken}` };
     const response = await axios.post('http://localhost:4000', queryUsers, { headers });
 
-    expect(response.data.data.Users.users.length).to.eq(15);
-    expect(response.data.data.Users.usersPreviousPage.hasMoreUsers).to.eq(false);
-    expect(response.data.data.Users.usersPreviousPage.totalUsersInPage).to.eq(0);
-    expect(response.data.data.Users.usersNextPage.hasMoreUsers).to.eq(true);
-    expect(response.data.data.Users.usersNextPage.totalUsersInPage).to.eq(36);
+    const returnedUsers = response.data.data.Users;
+
+    expect(returnedUsers.users.length).to.eq(15);
+    expect(returnedUsers.totalUsers).to.eq(users.length);
+    expect(returnedUsers.hasPreviousPage).to.eq(false);
+    expect(returnedUsers.hasNextPage).to.eq(true);
+
+    expect(returnedUsers.users).to.deep.eq(
+      users.slice(defaultOffset, defaultOffset + defaultLimit).map((user) => ({
+        id: user.id.toString(),
+        name: user.name,
+        email: user.email,
+        birthDate: user.birthDate.getTime().toString(),
+        addresses: user.addresses.map((address) => ({
+          ...address,
+          id: address.id.toString(),
+          userID: address.userID.toString(),
+        })),
+      })),
+    );
   });
 
   it('should return paginated users with next and previous pages', async () => {
@@ -57,11 +90,26 @@ describe('Users Query', function () {
     const headers = { Authorization: `Bearer ${authToken}` };
     const response = await axios.post('http://localhost:4000', queryUsers, { headers });
 
-    expect(response.data.data.Users.users.length).to.eq(10);
-    expect(response.data.data.Users.usersPreviousPage.hasMoreUsers).to.eq(true);
-    expect(response.data.data.Users.usersPreviousPage.totalUsersInPage).to.eq(10);
-    expect(response.data.data.Users.usersNextPage.hasMoreUsers).to.eq(true);
-    expect(response.data.data.Users.usersNextPage.totalUsersInPage).to.eq(31);
+    const returnedUsers = response.data.data.Users;
+
+    expect(returnedUsers.users.length).to.eq(10);
+    expect(returnedUsers.totalUsers).to.eq(users.length);
+    expect(returnedUsers.hasPreviousPage).to.eq(true);
+    expect(returnedUsers.hasNextPage).to.eq(true);
+
+    expect(returnedUsers.users).to.deep.eq(
+      users.slice(offset, offset + limit).map((user) => ({
+        id: user.id.toString(),
+        name: user.name,
+        email: user.email,
+        birthDate: user.birthDate.getTime().toString(),
+        addresses: user.addresses.map((address) => ({
+          ...address,
+          id: address.id.toString(),
+          userID: address.userID.toString(),
+        })),
+      })),
+    );
   });
 
   it('should return paginated users at the last page', async () => {
@@ -72,11 +120,26 @@ describe('Users Query', function () {
     const headers = { Authorization: `Bearer ${authToken}` };
     const response = await axios.post('http://localhost:4000', queryUsers, { headers });
 
-    expect(response.data.data.Users.users.length).to.eq(11);
-    expect(response.data.data.Users.usersPreviousPage.hasMoreUsers).to.eq(true);
-    expect(response.data.data.Users.usersPreviousPage.totalUsersInPage).to.eq(40);
-    expect(response.data.data.Users.usersNextPage.hasMoreUsers).to.eq(false);
-    expect(response.data.data.Users.usersNextPage.totalUsersInPage).to.eq(0);
+    const returnedUsers = response.data.data.Users;
+
+    expect(returnedUsers.users.length).to.eq(11);
+    expect(returnedUsers.totalUsers).to.eq(users.length);
+    expect(returnedUsers.hasPreviousPage).to.eq(true);
+    expect(returnedUsers.hasNextPage).to.eq(false);
+
+    expect(returnedUsers.users).to.deep.eq(
+      users.slice(offset, offset + limit).map((user) => ({
+        id: user.id.toString(),
+        name: user.name,
+        email: user.email,
+        birthDate: user.birthDate.getTime().toString(),
+        addresses: user.addresses.map((address) => ({
+          ...address,
+          id: address.id.toString(),
+          userID: address.userID.toString(),
+        })),
+      })),
+    );
   });
 
   it('should return an error for invalid limit', async () => {
@@ -89,9 +152,11 @@ describe('Users Query', function () {
       .post('http://localhost:4000', queryUsers, { headers })
       .catch((error) => error.response);
 
-    expect(response.data.errors[0].message).to.eq('Quantidade inválida.');
-    expect(response.data.errors[0].code).to.eq(400);
-    expect(response.data.errors[0].details).to.eq('A quantidade de usuários deve ser maior que zero.');
+    expect(response.data.errors[0]).to.deep.eq({
+      message: 'Quantidade inválida.',
+      code: 400,
+      details: 'A quantidade de usuários deve ser maior que zero.',
+    });
   });
 
   it('should return an error if user is not authenticated', async () => {
@@ -104,8 +169,10 @@ describe('Users Query', function () {
       .post('http://localhost:4000', queryUsers, { headers })
       .catch((error) => error.response);
 
-    expect(response.data.errors[0].message).to.eq('Usuário não autenticado ou tempo de login expirado.');
-    expect(response.data.errors[0].code).to.eq(401);
-    expect(response.data.errors[0].details).to.eq('Faça login para continuar.');
+    expect(response.data.errors[0]).to.deep.eq({
+      message: 'Usuário não autenticado ou tempo de login expirado.',
+      code: 401,
+      details: 'Faça login para continuar.',
+    });
   });
 });

@@ -5,7 +5,6 @@ import { validateAuth } from '../utils/auth-utils';
 import prisma from '../prisma';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import { validateAuth } from '../utils/auth-utils';
 
 const checkEmailExistence = async (email: string): Promise<void> => {
   const existingUser = await prisma.user.findUnique({
@@ -19,12 +18,14 @@ const checkEmailExistence = async (email: string): Promise<void> => {
 const createNewUser = async (userData: UserInput): Promise<User> => {
   const hashedPassword = await bcrypt.hash(userData.password, 10);
 
-  return prisma.user.create({
+  return await prisma.user.create({
     data: {
       ...userData,
       password: hashedPassword,
       birthDate: new Date(userData.birthDate),
+      addresses: { create: userData.addresses },
     },
+    include: { addresses: true },
   });
 };
 
@@ -37,6 +38,7 @@ export const resolvers = {
 
       const user = await prisma.user.findUnique({
         where: { id: Number(id) },
+        include: { addresses: true },
       });
 
       if (!user) {
@@ -95,6 +97,7 @@ export const resolvers = {
 
       const user = await prisma.user.findUnique({
         where: { email: loginData.email },
+        include: { addresses: true },
       });
 
       if (!user) {
